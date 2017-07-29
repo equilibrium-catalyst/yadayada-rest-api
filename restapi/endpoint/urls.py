@@ -51,8 +51,8 @@ class HashtagSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """Meta models, what is shown."""
 
-        model = models.Recording
-        fields = ('tag')
+        model = models.Hashtag
+        fields = ('tag', )
 
 
 class HashtagViewSet(viewsets.ModelViewSet):
