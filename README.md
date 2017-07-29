@@ -19,8 +19,7 @@ Documentation
 -	Upload a sound file to the server.
 
 ```
-HTTP 1.1 POST
-'apikey': some valid API key
+HTTP 1.1 POST (Authenticated)
 'file': some sound file
 ```
 
@@ -36,8 +35,7 @@ JSON
 -	Query the database given hashtag categories.
 
 ```
-HTTP 1.1 POST
-'apikey': some valid API key
+HTTP 1.1 GET (Authenticated)
 'tags': all of the tags that we want to use to rank search
 ```
 
