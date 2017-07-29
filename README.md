@@ -13,6 +13,11 @@ $ python manage.py migrate
 $ python manage.py createsuperuser
 ```
 
+Warning
+-------
+
+Be careful. This API has not yet implemented authentication as we only need to demonstrate up to MVP.
+
 Documentation
 -------------
 

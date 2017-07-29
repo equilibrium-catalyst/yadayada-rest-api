@@ -4,6 +4,8 @@ from django.conf.urls import include, url
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
+from . import models
+
 #
 # What do serialise?
 #
@@ -26,11 +28,46 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
+class RecordingSerializer(serializers.HyperlinkedModelSerializer):
+    """Define API representation."""
+
+    class Meta:
+        """Meta models, what is shown."""
+
+        model = models.Recording
+        fields = ('date', 'filename', 'hashtags', 'emotions')
+
+
+class RecordingViewSet(viewsets.ModelViewSet):
+    """Define view behaviour."""
+
+    queryset = models.Recording.objects.all()
+    serializer_class = RecordingSerializer
+
+
+class HashtagSerializer(serializers.HyperlinkedModelSerializer):
+    """Define API representation."""
+
+    class Meta:
+        """Meta models, what is shown."""
+
+        model = models.Recording
+        fields = ('tag')
+
+
+class HashtagViewSet(viewsets.ModelViewSet):
+    """Define view behaviour."""
+
+    queryset = models.Hashtag.objects.all()
+    serializer_class = HashtagSerializer
+
+
 # Determine routing conf.
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
-
+router.register(r'recordings', RecordingViewSet)
+router.register(r'hashtag', HashtagViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
