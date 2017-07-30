@@ -38,7 +38,7 @@ user: api_user
 pass: 7d8bf975-0ec4-430f-95e2-9daf2dbade03
 ```
 
-WARNING!
+Warning!
 --------
 
 This application was not built with security in mind! Do **not** under any circumstances deploy this to a production server, especially one without HTTPS and HSTS enabled.
@@ -106,3 +106,8 @@ When the file is uploaded, it is taken through the following pipeline logic:
 4.	File is stored on the file system.
 5.	An object is created and placed into the database.
 6.	JSON is returned to the user.
+
+Todo
+----
+
+Would be helpful if a post could have a simple audio response. Maybe a new Post model and Comment model that can inherit from Recording?
