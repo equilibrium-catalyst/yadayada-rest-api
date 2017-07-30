@@ -14,4 +14,12 @@ class Recording(models.Model):
 
     clip = models.FileField(null=True)
     hashtags = models.ManyToManyField(Hashtag, blank=True)
-    emotions = JSONField(default="{}")
+    transcript = models.CharField(null=True, blank=True, max_length=5000)
+
+    # Emotions
+
+    happy = models.IntegerField(default=0)
+    neutral = models.IntegerField(default=0)
+    sad = models.IntegerField(default=0)
+    angry = models.IntegerField(default=0)
+    fear = models.IntegerField(default=0)

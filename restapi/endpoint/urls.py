@@ -22,7 +22,8 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         """Meta models, what is shown."""
 
         model = models.Recording
-        fields = ('clip', 'hashtags', 'emotions', )
+        fields = ('clip', 'hashtags', 'happy',
+                  'neutral', 'fear', 'sad', 'angry')
 
 
 class RecordingViewSet(viewsets.ModelViewSet):
@@ -33,7 +34,7 @@ class RecordingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Change filename, hashtags, and emotions to necessary."""
-        serializer.save(emotions="{'test': 50}")
+        serializer.save(emotions={'test': 45})
 
 
 class HashtagSerializer(serializers.HyperlinkedModelSerializer):
