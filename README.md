@@ -43,6 +43,14 @@ WARNING!
 
 This application was not built with security in mind! Do **not** under any circumstances deploy this to a production server, especially one without HTTPS and HSTS enabled.
 
+Hackathon Caveats
+-----------------
+
+Because this was made in a hackathon with a time constraint, there are obviously some condsiderations:
+
+-	The file uploaded MUST be a mono mp3.
+-	The API cannot handle upload on a slow network.
+
 Documentation
 -------------
 
