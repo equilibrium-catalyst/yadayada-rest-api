@@ -35,7 +35,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
     clip = serializers.FileField(required=True)
 
     def create(self, validated_data):
-        """Change filename, hashtags, and emotions to necessary."""
+        """Change non-given attributes to necessary values."""
         # Set defaults for when quality is not valid.
         neutral = 0
         happy = 0
@@ -45,7 +45,6 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         transcript = ""
 
         clip = validated_data.pop("clip")
-        hashtags = validated_data.pop("hashtags")
 
         recording = models.Recording(neutral=neutral, happy=happy, sad=sad,
                                      angry=anger, fear=fear, clip=clip,
@@ -125,18 +124,43 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
 
         # Delete WAV file.
 
+        os.remove(filename_out)
+
         #
         # Analyse categories from NLP.
         #
         try:
-            # response = settings.TEXTRAZOR_CLIENT.analyze(recording.transcript)
-            response = settings.TEXTRAZOR_CLIENT.analyze(
-                str("Hopefully with a much longer audio recording, the client for TextRazor can actually do something with this. I need to make sure that the entities that are returned can be categorised."))
+            response = settings.TEXTRAZOR_CLIENT.analyze(recording.transcript)
+
+            # Get the top responses.
+            count = 0
+            categories = []
+
+            for i in response.topics():
+                if count < 5:
+                    categories.append(i.label)
+                else:
+                    break
+
+                count += 1
+
+            # Turn into string if there are at least one category.
+
+            if len(categories) == 1:
+                categories = categories[0]
+            elif len(categories) > 1:
+                categories = ", ".join(categories)
+            else:
+                categories = "Short"
         except Exception as ex:
             print("Failed to analyze with error: " + ex)
 
-        for i in response.topics():
-            print(i.label)
+            categories = "Short"
+
+        # Finally, save into the DB.
+
+        recording.categories = categories
+        recording.save()
 
         return recording
 
@@ -144,7 +168,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         """Meta models, what is shown."""
 
         model = models.Recording
-        fields = ('date', 'transcript', 'clip', 'hashtags', 'happy',
+        fields = ('date', 'transcript', 'clip', 'categories', 'happy',
                   'neutral', 'fear', 'sad', 'angry')
 
 
@@ -155,28 +179,10 @@ class RecordingViewSet(viewsets.ModelViewSet):
     serializer_class = RecordingSerializer
 
 
-class HashtagSerializer(serializers.HyperlinkedModelSerializer):
-    """Define API representation."""
-
-    class Meta:
-        """Meta models, what is shown."""
-
-        model = models.Hashtag
-        fields = ('tag', )
-
-
-class HashtagViewSet(viewsets.ModelViewSet):
-    """Define view behaviour."""
-
-    queryset = models.Hashtag.objects.all()
-    serializer_class = HashtagSerializer
-
-
 # Determine routing conf.
 
 router = routers.DefaultRouter()
 router.register(r'recordings', RecordingViewSet)
-router.register(r'hashtag', HashtagViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

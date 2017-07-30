@@ -38,6 +38,11 @@ user: api_user
 pass: 7d8bf975-0ec4-430f-95e2-9daf2dbade03
 ```
 
+WARNING!
+--------
+
+This application was not built with security in mind! Do **not** under any circumstances deploy this to a production server!
+
 Documentation
 -------------
 
