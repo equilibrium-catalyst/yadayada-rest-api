@@ -1,6 +1,8 @@
 """Endpoint URL Configuration."""
 
+from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
@@ -11,31 +13,16 @@ from . import models
 #
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    """Define API representation."""
-
-    class Meta:
-        """Meta models, what is shown."""
-
-        model = User
-        fields = ('url', 'username', 'email', 'is_staff')
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """Define view behaviour."""
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 class RecordingSerializer(serializers.HyperlinkedModelSerializer):
     """Define API representation."""
+
+    clip = serializers.FileField(required=True)
 
     class Meta:
         """Meta models, what is shown."""
 
         model = models.Recording
-        fields = ('clip', 'date', 'filename', 'hashtags', 'emotions')
+        fields = ('clip', 'hashtags', 'emotions', )
 
 
 class RecordingViewSet(viewsets.ModelViewSet):
@@ -43,6 +30,10 @@ class RecordingViewSet(viewsets.ModelViewSet):
 
     queryset = models.Recording.objects.all()
     serializer_class = RecordingSerializer
+
+    def perform_create(self, serializer):
+        """Change filename, hashtags, and emotions to necessary."""
+        serializer.save(emotions="{'test': 50}")
 
 
 class HashtagSerializer(serializers.HyperlinkedModelSerializer):
@@ -65,7 +56,6 @@ class HashtagViewSet(viewsets.ModelViewSet):
 # Determine routing conf.
 
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
 router.register(r'recordings', RecordingViewSet)
 router.register(r'hashtag', HashtagViewSet)
 
@@ -74,3 +64,8 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework'))
 ]
+
+# Show media files if not in debug.
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
