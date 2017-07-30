@@ -12,6 +12,7 @@ class Hashtag(models.Model):
 class Recording(models.Model):
     """Model for recorded files."""
 
+    clip = models.FileField(null=True)
     date = models.DateTimeField(auto_now=True)
     filename = models.CharField(max_length=255)
     hashtags = models.ManyToManyField(Hashtag)

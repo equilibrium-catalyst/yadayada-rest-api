@@ -35,7 +35,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         """Meta models, what is shown."""
 
         model = models.Recording
-        fields = ('date', 'filename', 'hashtags', 'emotions')
+        fields = ('clip', 'date', 'filename', 'hashtags', 'emotions')
 
 
 class RecordingViewSet(viewsets.ModelViewSet):

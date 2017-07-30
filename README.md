@@ -24,9 +24,11 @@ Documentation
 -	Upload a sound file to the server.
 
 ```
-HTTP 1.1 POST (Authenticated)
+HTTP 1.1 POST '/'
 'file': some sound file
 ```
+
+**Not yet implemented. REST-API framework, we need to find out how to actually do the file upload.**
 
 ...returns:
 
