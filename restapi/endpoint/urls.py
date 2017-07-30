@@ -1,5 +1,6 @@
 """Endpoint URL Configuration."""
 
+import speech.api.Vokaturi
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -34,7 +35,7 @@ class RecordingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Change filename, hashtags, and emotions to necessary."""
-        serializer.save(emotions={'test': 45})
+        serializer.save()
 
 
 class HashtagSerializer(serializers.HyperlinkedModelSerializer):
