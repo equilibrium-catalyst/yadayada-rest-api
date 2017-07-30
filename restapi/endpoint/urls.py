@@ -42,13 +42,19 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         anger = 0
         fear = 0
 
+        clip = validated_data.pop("clip")
+        hashtags = validated_data.pop("hashtags")
+
+        recording = models.Recording(neutral=neutral, happy=happy, sad=sad,
+                                     angry=anger, fear=fear, clip=clip)
+        recording.save()
+
         #
         # Convert from MP3 to WAV for first upload.
         #
 
-        filename = os.path.join(settings.MEDIA_ROOT,
-                                validated_data.get("clip").name)
-        filename = validated_data.get("clip").temporary_file_path()
+        filename = os.path.join(settings.MEDIA_ROOT, clip.name)
+        filename = clip.temporary_file_path()
 
         filename_out = os.path.join(settings.MEDIA_ROOT,
                                     str(uuid.uuid4()) + ".wav")
@@ -60,8 +66,6 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         #
 
         (sample_rate, samples) = scipy.io.wavfile.read(filename_out)
-
-        print("\nGETTING FILES DONE!\n\n")
 
         # Allocate Vokaturi sample array.
 
@@ -87,11 +91,13 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         voice.extract(quality, emotionProbabilities)
 
         if quality.valid:
-            neutral = int(emotionProbabilities.neutrality)
-            happy = int(emotionProbabilities.happiness)
-            sad = int(emotionProbabilities.sadness)
-            anger = int(emotionProbabilities.anger)
-            fear = int(emotionProbabilities.fear)
+            recording.neutral = emotionProbabilities.neutrality
+            recording.happy = emotionProbabilities.happiness
+            recording.sad = emotionProbabilities.sadness
+            recording.anger = emotionProbabilities.anger
+            recording.fear = emotionProbabilities.fear
+
+            recording.save()
 
         #
         # Get a transcript of what is said.
@@ -105,9 +111,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Analyse categories from NLP.
         #
 
-        return models.Recording(neutral=neutral, happy=happy, sad=sad,
-                                angry=anger, fear=fear, clip=null,
-                                **validated_data)
+        return recording
 
     class Meta:
         """Meta models, what is shown."""

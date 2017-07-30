@@ -18,8 +18,8 @@ class Recording(models.Model):
 
     # Emotions
 
-    happy = models.IntegerField(default=0)
-    neutral = models.IntegerField(default=0)
-    sad = models.IntegerField(default=0)
-    angry = models.IntegerField(default=0)
-    fear = models.IntegerField(default=0)
+    happy = models.DecimalField(default=0, decimal_places=4, max_digits=10)
+    neutral = models.DecimalField(default=0, decimal_places=4, max_digits=10)
+    sad = models.DecimalField(default=0, decimal_places=4, max_digits=10)
+    angry = models.DecimalField(default=0, decimal_places=4, max_digits=10)
+    fear = models.DecimalField(default=0, decimal_places=4, max_digits=10)
