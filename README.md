@@ -6,17 +6,31 @@ Django RESTful backend API for the YadaYada application.
 Installation
 ------------
 
-Just clone the repository, activate the virtualenv, and install the requirements found in `requirements.txt`. After this, cd into the `restapi` directory and:
+Get 'ffmpg':
+
+```
+$ brew install ffmpeg
+```
+
+...or, on Linux:
+
+```
+$ sudo apt-get install ffmpeg libavcodec-extra-53
+```
+
+Afterwards, just clone the repository, activate the virtualenv, and install the requirements found in `requirements.txt`. After this, cd into the `restapi` directory and:
 
 ```sh
 $ python manage.py migrate
 $ python manage.py createsuperuser
 ```
 
-Warning
--------
+POST requests must be authenticated. You will need to remember the username:password for the superuser. For instance:
 
-Be careful. This API has not yet implemented authentication as we only need to demonstrate up to MVP.
+```sh
+user: api_user
+pass: 7d8bf975-0ec4-430f-95e2-9daf2dbade03
+```
 
 Documentation
 -------------

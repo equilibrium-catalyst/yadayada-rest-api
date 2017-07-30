@@ -1,13 +1,27 @@
 """Endpoint URL Configuration."""
 
-import speech.api.Vokaturi
+import os
+import uuid
+
+import scipy.io.wavfile
+import speech.api.Vokaturi as Vokaturi
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib.auth.models import User
+from pydub import AudioSegment
 from rest_framework import routers, serializers, viewsets
 
 from . import models
+
+#
+# Launch Vokaturi
+#
+
+Vokaturi.load("speech/lib/Vokaturi_mac.so")
+
+print("\n-- Vokaturi loaded. --\n")
+
 
 #
 # What do serialise?
@@ -18,6 +32,77 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
     """Define API representation."""
 
     clip = serializers.FileField(required=True)
+
+    def create(self, validated_data):
+        """Change filename, hashtags, and emotions to necessary."""
+        # Set defaults for when quality is not valid.
+        neutral = 0
+        happy = 0
+        sad = 0
+        anger = 0
+        fear = 0
+
+        #
+        # Convert from MP3 to WAV for first upload.
+        #
+
+        filename = os.path.join(
+            settings.BASE_DIR, validated_data.get("clip").name)
+        filename_out = str(uuid.uuid4()) + ".wav"
+        sound = AudioSegment.from_mp3(filename)
+        sound.export(os.path.join(settings.BASE_DIR,
+                                  filename_out), format="wav")
+
+        #
+        # Find sentiment.
+        #
+
+        (sample_rate, samples) = scipy.io.wavfile.read(filename_out)
+
+        # Allocate Vokaturi sample array.
+
+        buffer_length = len(samples)
+        c_buffer = Vokaturi.SampleArrayC(buffer_length)
+
+        if samples.ndim == 1:
+            # Mono
+            c_buffer[:] = samples[:] / 32768.0
+        else:
+            # Stereo. Should never happen.
+            c_buffer[:] = 0.5 * (samples[:, 0] + samples[:, 1]) / 32768.0
+
+        # Create voice and fill with samples.
+
+        voice = Vokaturi.Voice(sample_rate, buffer_length)
+        voice.fill(buffer_length, c_buffer)
+
+        # Find sentiment, final step.
+
+        quality = Vokaturi.Quality()
+        emotionProbabilities = Vokaturi.EmotionProbabilities()
+        voice.extract(quality, emotionProbabilities)
+
+        if quality.valid:
+            neutral = int(emotionProbabilities.neutrality)
+            happy = int(emotionProbabilities.happiness)
+            sad = int(emotionProbabilities.sadness)
+            anger = int(emotionProbabilities.anger)
+            fear = int(emotionProbabilities.fear)
+
+        #
+        # Get a transcript of what is said.
+        #
+
+        # Get transcript.
+
+        # Delete WAV file.
+
+        #
+        # Analyse categories from NLP.
+        #
+
+        return models.Recording(neutral=neutral, happy=happy,
+                                sad=sad, angry=anger, fear=fear, **validated_data)
 
     class Meta:
         """Meta models, what is shown."""
@@ -32,10 +117,6 @@ class RecordingViewSet(viewsets.ModelViewSet):
 
     queryset = models.Recording.objects.all()
     serializer_class = RecordingSerializer
-
-    def perform_create(self, serializer):
-        """Change filename, hashtags, and emotions to necessary."""
-        serializer.save()
 
 
 class HashtagSerializer(serializers.HyperlinkedModelSerializer):
@@ -67,7 +148,9 @@ urlpatterns = [
                                namespace='rest_framework'))
 ]
 
+
 # Show media files if not in debug.
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

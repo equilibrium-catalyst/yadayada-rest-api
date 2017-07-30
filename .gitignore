@@ -1,5 +1,6 @@
 # User
 db.sqlite3
+database.sqlite3
 secure.py
 media
 
