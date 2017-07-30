@@ -41,7 +41,7 @@ pass: 7d8bf975-0ec4-430f-95e2-9daf2dbade03
 WARNING!
 --------
 
-This application was not built with security in mind! Do **not** under any circumstances deploy this to a production server!
+This application was not built with security in mind! Do **not** under any circumstances deploy this to a production server, especially one without HTTPS and HSTS enabled.
 
 Documentation
 -------------
@@ -49,26 +49,42 @@ Documentation
 -	Upload a sound file to the server.
 
 ```
-HTTP 1.1 POST '/'
-'file': some sound file
+HTTP 1.1 POST '/' -a (or --user in CURL) user:password
+'clip': some sound file
 ```
-
-**Not yet implemented. REST-API framework, we need to find out how to actually do the file upload.**
 
 ...returns:
 
 ```
-JSON
-'sentiment': an object of strings to integers (out of 100)
-'transcript': a long string of the user's speech
-'tags': an array of strings
+JSON object
+'clip': string, path to clip on the server
+'happy': string of decimal, happy emotion
+'sad': string of decimal, sadness emotion
+'angry': string of decimal, anger emotion
+'neutral': string of decimal, neutral emotion
+'fear': string of decimal, fearful emotion
+'transcript': string, speech-to-text of the recording.
+'categories': string, comma separated categories
 ```
 
--	Query the database given hashtag categories.
+-	Query the database for all recordings sorted by date.
 
 ```
-HTTP 1.1 GET (Authenticated)
-'tags': all of the tags that we want to use to rank search
+HTTP 1.1 GET /recordings?format=json
+```
+
+...returns:
+
+```
+JSON array of the above JSON objects.
+```
+
+CURL examples
+-------------
+
+```sh
+$ curl -F "clip=@file.mp3" http://endpoint/recordings/ --user uname:password
+$ curl http://endpoint/recordings  # This is unauthenticated.
 ```
 
 Pipeline
