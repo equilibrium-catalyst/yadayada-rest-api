@@ -1,6 +1,7 @@
 # User
 db.sqlite3
 secure.py
+media
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
