@@ -1,6 +1,8 @@
 """Django REST api for the YadaYada application."""
 import os
 
+import textrazor
+
 from . import secure
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -11,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
 
 SECRET_KEY = secure.SECRET_KEY
+textrazor.api_key = secure.TEXTRAZOR_API_KEY
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
@@ -122,3 +125,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.'
                         'TemporaryFileUploadHandler']
+
+#
+# TextRazor
+#
+
+TEXTRAZOR_CLIENT = textrazor.TextRazor(extractors=["topics"])
+
+print("\n-- Loaded TextRazor. --\n")

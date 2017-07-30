@@ -6,15 +6,16 @@ from jsonfield import JSONField
 class Hashtag(models.Model):
     """Model for categorical hashtags."""
 
-    tag = models.CharField(max_length=63)
+    tag = models.CharField(max_length=63, unique=True)
 
 
 class Recording(models.Model):
     """Model for recorded files."""
 
+    date = models.DateTimeField(auto_now=True)
     clip = models.FileField(null=True)
     hashtags = models.ManyToManyField(Hashtag, blank=True)
-    transcript = models.CharField(null=True, blank=True, max_length=5000)
+    transcript = models.CharField(default="", max_length=5000)
 
     # Emotions
 

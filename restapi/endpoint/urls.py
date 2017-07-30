@@ -5,6 +5,7 @@ import uuid
 
 import scipy.io.wavfile
 import speech.api.Vokaturi as Vokaturi
+import speech_recognition as sr
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -20,7 +21,7 @@ from . import models
 
 Vokaturi.load("speech/lib/Vokaturi_mac.so")
 
-print("\n-- Vokaturi loaded. --\n")
+print("-- Loaded Vokaturi. --\n")
 
 
 #
@@ -41,12 +42,14 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         sad = 0
         anger = 0
         fear = 0
+        transcript = ""
 
         clip = validated_data.pop("clip")
         hashtags = validated_data.pop("hashtags")
 
         recording = models.Recording(neutral=neutral, happy=happy, sad=sad,
-                                     angry=anger, fear=fear, clip=clip)
+                                     angry=anger, fear=fear, clip=clip,
+                                     transcript="")
         recording.save()
 
         #
@@ -105,11 +108,35 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
 
         # Get transcript.
 
+        r = sr.Recognizer()
+        with sr.AudioFile(filename_out) as source:
+            audio = r.record(source)
+
+        # Recognise speech using Google Speech Recognition
+
+        try:
+            recording.transcript = r.recognize_google(audio)
+            recording.save()
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition"
+                  " service; {0}".format(e))
+
         # Delete WAV file.
 
         #
         # Analyse categories from NLP.
         #
+        try:
+            # response = settings.TEXTRAZOR_CLIENT.analyze(recording.transcript)
+            response = settings.TEXTRAZOR_CLIENT.analyze(
+                str("Hopefully with a much longer audio recording, the client for TextRazor can actually do something with this. I need to make sure that the entities that are returned can be categorised."))
+        except Exception as ex:
+            print("Failed to analyze with error: " + ex)
+
+        for i in response.topics():
+            print(i.label)
 
         return recording
 
@@ -117,7 +144,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         """Meta models, what is shown."""
 
         model = models.Recording
-        fields = ('clip', 'hashtags', 'happy',
+        fields = ('date', 'transcript', 'clip', 'hashtags', 'happy',
                   'neutral', 'fear', 'sad', 'angry')
 
 

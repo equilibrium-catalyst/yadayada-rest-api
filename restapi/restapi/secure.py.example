@@ -1,3 +1,4 @@
 """Remember to change this file extension to .py."""
 
 SECRET_KEY = ''
+TEXTRAZOR_API_KEY = ''

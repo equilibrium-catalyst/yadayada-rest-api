@@ -25,6 +25,12 @@ $ python manage.py migrate
 $ python manage.py createsuperuser
 ```
 
+Running in debug is easy:
+
+```
+$ python manage.py runserver 0:8000 --noreload
+```
+
 POST requests must be authenticated. You will need to remember the username:password for the superuser. For instance:
 
 ```sh
