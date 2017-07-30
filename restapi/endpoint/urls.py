@@ -46,18 +46,22 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Convert from MP3 to WAV for first upload.
         #
 
-        filename = os.path.join(
-            settings.BASE_DIR, validated_data.get("clip").name)
-        filename_out = str(uuid.uuid4()) + ".wav"
+        filename = os.path.join(settings.MEDIA_ROOT,
+                                validated_data.get("clip").name)
+        filename = validated_data.get("clip").temporary_file_path()
+
+        filename_out = os.path.join(settings.MEDIA_ROOT,
+                                    str(uuid.uuid4()) + ".wav")
         sound = AudioSegment.from_mp3(filename)
-        sound.export(os.path.join(settings.BASE_DIR,
-                                  filename_out), format="wav")
+        sound.export(filename_out, format="wav")
 
         #
         # Find sentiment.
         #
 
         (sample_rate, samples) = scipy.io.wavfile.read(filename_out)
+
+        print("\nGETTING FILES DONE!\n\n")
 
         # Allocate Vokaturi sample array.
 
@@ -101,8 +105,9 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Analyse categories from NLP.
         #
 
-        return models.Recording(neutral=neutral, happy=happy,
-                                sad=sad, angry=anger, fear=fear, **validated_data)
+        return models.Recording(neutral=neutral, happy=happy, sad=sad,
+                                angry=anger, fear=fear, clip=null,
+                                **validated_data)
 
     class Meta:
         """Meta models, what is shown."""
