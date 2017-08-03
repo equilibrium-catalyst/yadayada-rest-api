@@ -21,9 +21,6 @@ from . import models
 
 Vokaturi.load("speech/lib/Vokaturi_mac.so")
 
-print("-- Loaded Vokaturi. --\n")
-
-
 #
 # What do serialise?
 #
@@ -45,6 +42,9 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         transcript = ""
 
         clip = validated_data.pop("clip")
+        filename = clip.temporary_file_path()
+
+        # Verify proper audio file.
 
         recording = models.Recording(neutral=neutral, happy=happy, sad=sad,
                                      angry=anger, fear=fear, clip=clip,
@@ -54,9 +54,6 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         #
         # Convert from MP3 to WAV for first upload.
         #
-
-        filename = os.path.join(settings.MEDIA_ROOT, clip.name)
-        filename = clip.temporary_file_path()
 
         filename_out = os.path.join(settings.MEDIA_ROOT,
                                     str(uuid.uuid4()) + ".wav")
@@ -114,12 +111,10 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Recognise speech using Google Speech Recognition
 
         try:
-            recording.transcript = r.recognize_google(audio)
+            recording.transcript = r.recognize_sphinx(audio)
             recording.save()
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
-        except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition"
+        except Exception as e:
+            print("Could not request results from Sphinx"
                   " service; {0}".format(e))
 
         # Delete WAV file.
@@ -130,6 +125,8 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Analyse categories from NLP.
         #
         try:
+            if not recording.transcript:
+                recording.transcript = "Empty."
             response = settings.TEXTRAZOR_CLIENT.analyze(recording.transcript)
 
             # Get the top responses.

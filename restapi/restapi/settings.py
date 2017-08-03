@@ -131,5 +131,3 @@ FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.'
 #
 
 TEXTRAZOR_CLIENT = textrazor.TextRazor(extractors=["topics"])
-
-print("\n-- Loaded TextRazor. --\n")
