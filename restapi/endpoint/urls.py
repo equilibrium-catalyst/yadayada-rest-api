@@ -90,11 +90,11 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         voice.extract(quality, emotionProbabilities)
 
         if quality.valid:
-            recording.neutral = emotionProbabilities.neutrality
-            recording.happy = emotionProbabilities.happiness
-            recording.sad = emotionProbabilities.sadness
-            recording.anger = emotionProbabilities.anger
-            recording.fear = emotionProbabilities.fear
+            recording.neutral = round(100 * emotionProbabilities.neutrality)
+            recording.happy = round(100 * emotionProbabilities.happiness)
+            recording.sad = round(100 * emotionProbabilities.sadness)
+            recording.anger = round(100 * emotionProbabilities.anger)
+            recording.fear = round(100 * emotionProbabilities.fear)
 
             recording.save()
 
