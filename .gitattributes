@@ -1,1 +1,6 @@
 restapi/speech/ linguist-vendored
+restapi/speech/* linguist-vendored
+restapi/speech/api/ linguist-vendored
+restapi/speech/src/* linguist-vendored
+*.c linguist-vendored
+*.h linguist-vendored
