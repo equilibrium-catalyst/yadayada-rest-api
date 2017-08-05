@@ -111,7 +111,8 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         # Recognise speech using Google Speech Recognition
 
         try:
-            recording.transcript = r.recognize_sphinx(audio)
+            recording.transcript = r.recognize_google(
+                audio)  # r.recognize_sphinx(audio)
             recording.save()
         except Exception as e:
             print("Could not request results from Sphinx"
