@@ -1,4 +1,4 @@
-django==1.10.3
+django==1.10.7
 djangorestframework==3.6.3
 jsonfield==2.0.2
 scipy==0.19.1
